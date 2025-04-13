@@ -1,70 +1,52 @@
 ---
-title: Overview
+title: 概览
 ---
 
-<Info>**Protocol Revision**: 2024-11-05</Info>
+<Info>**协议修订版**：2024-11-05</Info>
 
-All messages between MCP clients and servers **MUST** follow the
-[JSON-RPC 2.0](https://www.jsonrpc.org/specification) specification. The protocol defines
-three fundamental types of messages:
+MCP 客户端与服务器之间的所有消息 **必须** 遵循 [JSON-RPC 2.0](https://www.jsonrpc.org/specification) 规范。该协议定义了三种基本消息类型：
 
-| Type            | Description                            | Requirements                           |
+| 类型            | 描述                                   | 要求                                   |
 | --------------- | -------------------------------------- | -------------------------------------- |
-| `Requests`      | Messages sent to initiate an operation | Must include unique ID and method name |
-| `Responses`     | Messages sent in reply to requests     | Must include same ID as request        |
-| `Notifications` | One-way messages with no reply         | Must not include an ID                 |
+| `请求`          | 用于发起操作的消息                     | 必须包含唯一 ID 和方法名称             |
+| `响应`          | 回复请求的消息                         | 必须包含与请求相同的 ID                |
+| `通知`          | 无需回复的单向消息                     | 不得包含 ID                            |
 
-**Responses** are further sub-categorized as either **successful results** or **errors**.
-Results can follow any JSON object structure, while errors must include an error code and
-message at minimum.
+**响应** 进一步分为 **成功结果** 或 **错误** 两类。结果可以遵循任意 JSON 对象结构，而错误必须至少包含错误代码和消息。
 
-## Protocol Layers
+## 协议层
 
-The Model Context Protocol consists of several key components that work together:
+模型上下文协议由多个关键组件组成，协同工作：
 
-- **Base Protocol**: Core JSON-RPC message types
-- **Lifecycle Management**: Connection initialization, capability negotiation, and
-  session control
-- **Server Features**: Resources, prompts, and tools exposed by servers
-- **Client Features**: Sampling and root directory lists provided by clients
-- **Utilities**: Cross-cutting concerns like logging and argument completion
+- **基础协议**：核心 JSON-RPC 消息类型
+- **生命周期管理**：连接初始化、能力协商和会话控制
+- **服务器功能**：服务器暴露的资源、提示和工具
+- **客户端功能**：客户端提供的采样和根目录列表
+- **工具**：日志记录和参数补全等跨领域关注点
 
-All implementations **MUST** support the base protocol and lifecycle management
-components. Other components **MAY** be implemented based on the specific needs of the
-application.
+所有实现 **必须** 支持基础协议和生命周期管理组件。其他组件 **可以** 根据应用程序的特定需求选择实现。
 
-These protocol layers establish clear separation of concerns while enabling rich
-interactions between clients and servers. The modular design allows implementations to
-support exactly the features they need.
+这些协议层建立了清晰的关注点分离，同时支持客户端与服务器之间的丰富交互。模块化设计允许实现仅支持所需的功能。
 
-See the following pages for more details on the different components:
+有关不同组件的更多详情，请参阅以下页面：
 
 <CardGroup cols={3}>
-  <Card title="Lifecycle" icon="arrows-rotate" href="/specification/2024-11-05/basic/lifecycle" />
-  <Card title="Resources" icon="file-lines" href="/specification/2024-11-05/server/resources" />
-  <Card title="Prompts" icon="message" href="/specification/2024-11-05/server/prompts" />
-  <Card title="Tools" icon="wrench" href="/specification/2024-11-05/server/tools" />
-  <Card title="Logging" icon="rectangle-list" href="/specification/2024-11-05/server/utilities/logging" />
-  <Card title="Sampling" icon="code" href="/specification/2024-11-05/client/sampling" />
+  <Card title="生命周期" icon="arrows-rotate" href="/specification/2024-11-05/basic/lifecycle" />
+  <Card title="资源" icon="file-lines" href="/specification/2024-11-05/server/resources" />
+  <Card title="提示" icon="message" href="/specification/2024-11-05/server/prompts" />
+  <Card title="工具" icon="wrench" href="/specification/2024-11-05/server/tools" />
+  <Card title="日志记录" icon="rectangle-list" href="/specification/2024-11-05/server/utilities/logging" />
+  <Card title="采样" icon="code" href="/specification/2024-11-05/client/sampling" />
 </CardGroup>
 
-## Auth
+## 认证
 
-Authentication and authorization are not currently part of the core MCP specification,
-but we are considering ways to introduce them in future. Join us in
-[GitHub Discussions](https://github.com/modelcontextprotocol/specification/discussions)
-to help shape the future of the protocol!
+认证和授权目前不是 MCP 核心规范的一部分，但我们正在考虑未来引入相关机制。欢迎加入 [GitHub 讨论](https://github.com/modelcontextprotocol/specification/discussions)，帮助塑造协议的未来！
 
-Clients and servers **MAY** negotiate their own custom authentication and authorization
-strategies.
+客户端和服务器 **可以** 协商其自定义的认证和授权策略。
 
-## Schema
+## 模式
 
-The full specification of the protocol is defined as a
-[TypeScript schema](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.ts).
-This is the source of truth for all protocol messages and structures.
+协议的完整规范以 [TypeScript 模式](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.ts) 定义。这是所有协议消息和结构的权威来源。
 
-There is also a
-[JSON Schema](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.json),
-which is automatically generated from the TypeScript source of truth, for use with
-various automated tooling.
+此外，还有一个 [JSON 模式](http://github.com/modelcontextprotocol/specification/tree/main/schema/2024-11-05/schema.json)，它从 TypeScript 权威来源自动生成，供各种自动化工具使用。

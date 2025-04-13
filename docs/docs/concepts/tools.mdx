@@ -1,49 +1,49 @@
 ---
-title: "Tools"
-description: "Enable LLMs to perform actions through your server"
+title: 工具
+description: 通过您的服务器使大型语言模型执行操作
 ---
 
-Tools are a powerful primitive in the Model Context Protocol (MCP) that enable servers to expose executable functionality to clients. Through tools, LLMs can interact with external systems, perform computations, and take actions in the real world.
+工具是模型上下文协议（MCP）中的一个强大原语，允许服务器向客户端暴露可执行功能。通过工具，大型语言模型（LLM）可以与外部系统交互、执行计算并在现实世界中采取行动。
 
 <Note>
-  Tools are designed to be **model-controlled**, meaning that tools are exposed from servers to clients with the intention of the AI model being able to automatically invoke them (with a human in the loop to grant approval).
+  工具设计为**模型控制**，意味着工具从服务器暴露给客户端，目的是让 AI 模型能够自动调用它们（需有人在回路中批准）。
 </Note>
 
-## Overview
+## 概述
 
-Tools in MCP allow servers to expose executable functions that can be invoked by clients and used by LLMs to perform actions. Key aspects of tools include:
+MCP 中的工具允许服务器暴露可由客户端调用并由 LLM 用于执行操作的可执行函数。工具的关键方面包括：
 
-- **Discovery**: Clients can list available tools through the `tools/list` endpoint
-- **Invocation**: Tools are called using the `tools/call` endpoint, where servers perform the requested operation and return results
-- **Flexibility**: Tools can range from simple calculations to complex API interactions
+- **发现**：客户端可以通过 `tools/list` 端点列出可用工具
+- **调用**：通过 `tools/call` 端点调用工具，服务器执行请求的操作并返回结果
+- **灵活性**：工具可以从简单计算到复杂的 API 交互
 
-Like [resources](/docs/concepts/resources), tools are identified by unique names and can include descriptions to guide their usage. However, unlike resources, tools represent dynamic operations that can modify state or interact with external systems.
+与[资源](/docs/concepts/resources)类似，工具通过唯一名称标识，并可包含描述以指导使用。然而，与资源不同，工具表示可以修改状态或与外部系统交互的动态操作。
 
-## Tool definition structure
+## 工具定义结构
 
-Each tool is defined with the following structure:
+每个工具的定义结构如下：
 
 ```typescript
 {
-  name: string;          // Unique identifier for the tool
-  description?: string;  // Human-readable description
-  inputSchema: {         // JSON Schema for the tool's parameters
+  name: string;          // 工具的唯一标识符
+  description?: string;  // 可读的描述
+  inputSchema: {         // 工具参数的 JSON Schema
     type: "object",
-    properties: { ... }  // Tool-specific parameters
+    properties: { ... }  // 工具特定的参数
   },
-  annotations?: {        // Optional hints about tool behavior
-    title?: string;      // Human-readable title for the tool
-    readOnlyHint?: boolean;    // If true, the tool does not modify its environment
-    destructiveHint?: boolean; // If true, the tool may perform destructive updates
-    idempotentHint?: boolean;  // If true, repeated calls with same args have no additional effect
-    openWorldHint?: boolean;   // If true, tool interacts with external entities
+  annotations?: {        // 关于工具行为的可选提示
+    title?: string;      // 工具的可读标题
+    readOnlyHint?: boolean;    // 如果为 true，工具不修改其环境
+    destructiveHint?: boolean; // 如果为 true，工具可能执行破坏性更新
+    idempotentHint?: boolean;  // 如果为 true，重复调用相同参数无额外效果
+    openWorldHint?: boolean;   // 如果为 true，工具与外部实体交互
   }
 }
 ```
 
-## Implementing tools
+## 实现工具
 
-Here's an example of implementing a basic tool in an MCP server:
+以下是在 MCP 服务器中实现基本工具的示例：
 
 <Tabs>
   <Tab title="TypeScript">
@@ -57,12 +57,12 @@ Here's an example of implementing a basic tool in an MCP server:
       }
     });
 
-    // Define available tools
+    // 定义可用工具
     server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
         tools: [{
           name: "calculate_sum",
-          description: "Add two numbers together",
+          description: "将两个数字相加",
           inputSchema: {
             type: "object",
             properties: {
@@ -75,7 +75,7 @@ Here's an example of implementing a basic tool in an MCP server:
       };
     });
 
-    // Handle tool execution
+    // 处理工具执行
     server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (request.params.name === "calculate_sum") {
         const { a, b } = request.params.arguments;
@@ -88,7 +88,7 @@ Here's an example of implementing a basic tool in an MCP server:
           ]
         };
       }
-      throw new Error("Tool not found");
+      throw new Error("未找到工具");
     });
     ```
   </Tab>
@@ -101,7 +101,7 @@ Here's an example of implementing a basic tool in an MCP server:
         return [
             types.Tool(
                 name="calculate_sum",
-                description="Add two numbers together",
+                description="将两个数字相加",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -123,23 +123,23 @@ Here's an example of implementing a basic tool in an MCP server:
             b = arguments["b"]
             result = a + b
             return [types.TextContent(type="text", text=str(result))]
-        raise ValueError(f"Tool not found: {name}")
+        raise ValueError(f"未找到工具：{name}")
     ```
   </Tab>
 </Tabs>
 
-## Example tool patterns
+## 示例工具模式
 
-Here are some examples of types of tools that a server could provide:
+以下是服务器可以提供的工具类型示例：
 
-### System operations
+### 系统操作
 
-Tools that interact with the local system:
+与本地系统交互的工具：
 
 ```typescript
 {
   name: "execute_command",
-  description: "Run a shell command",
+  description: "运行 shell 命令",
   inputSchema: {
     type: "object",
     properties: {
@@ -150,14 +150,14 @@ Tools that interact with the local system:
 }
 ```
 
-### API integrations
+### API 集成
 
-Tools that wrap external APIs:
+封装外部 API 的工具：
 
 ```typescript
 {
   name: "github_create_issue",
-  description: "Create a GitHub issue",
+  description: "创建 GitHub 问题",
   inputSchema: {
     type: "object",
     properties: {
@@ -169,14 +169,14 @@ Tools that wrap external APIs:
 }
 ```
 
-### Data processing
+### 数据处理
 
-Tools that transform or analyze data:
+转换或分析数据的工具：
 
 ```typescript
 {
   name: "analyze_csv",
-  description: "Analyze a CSV file",
+  description: "分析 CSV 文件",
   inputSchema: {
     type: "object",
     properties: {
@@ -192,78 +192,78 @@ Tools that transform or analyze data:
 }
 ```
 
-## Best practices
+## 最佳实践
 
-When implementing tools:
+实现工具时：
 
-1. Provide clear, descriptive names and descriptions
-2. Use detailed JSON Schema definitions for parameters
-3. Include examples in tool descriptions to demonstrate how the model should use them
-4. Implement proper error handling and validation
-5. Use progress reporting for long operations
-6. Keep tool operations focused and atomic
-7. Document expected return value structures
-8. Implement proper timeouts
-9. Consider rate limiting for resource-intensive operations
-10. Log tool usage for debugging and monitoring
+1. 提供清晰、描述性的名称和描述
+2. 为参数使用详细的 JSON Schema 定义
+3. 在工具描述中包含示例，展示模型应如何使用它们
+4. 实现适当的错误处理和验证
+5. 对长时间操作使用进度报告
+6. 保持工具操作的专注和原子性
+7. 记录预期的返回值结构
+8. 实现适当的超时
+9. 考虑对资源密集型操作设置速率限制
+10. 记录工具使用情况以便调试和监控
 
-## Security considerations
+## 安全考虑
 
-When exposing tools:
+暴露工具时：
 
-### Input validation
+### 输入验证
 
-- Validate all parameters against the schema
-- Sanitize file paths and system commands
-- Validate URLs and external identifiers
-- Check parameter sizes and ranges
-- Prevent command injection
+- 根据模式验证所有参数
+- 清理文件路径和系统命令
+- 验证 URL 和外部标识符
+- 检查参数大小和范围
+- 防止命令注入
 
-### Access control
+### 访问控制
 
-- Implement authentication where needed
-- Use appropriate authorization checks
-- Audit tool usage
-- Rate limit requests
-- Monitor for abuse
+- 在需要时实施认证
+- 使用适当的授权检查
+- 审计工具使用情况
+- 限制请求速率
+- 监控滥用行为
 
-### Error handling
+### 错误处理
 
-- Don't expose internal errors to clients
-- Log security-relevant errors
-- Handle timeouts appropriately
-- Clean up resources after errors
-- Validate return values
+- 不要向客户端暴露内部错误
+- 记录与安全相关的错误
+- 适当处理超时
+- 在错误后清理资源
+- 验证返回值
 
-## Tool discovery and updates
+## 工具发现和更新
 
-MCP supports dynamic tool discovery:
+MCP 支持动态工具发现：
 
-1. Clients can list available tools at any time
-2. Servers can notify clients when tools change using `notifications/tools/list_changed`
-3. Tools can be added or removed during runtime
-4. Tool definitions can be updated (though this should be done carefully)
+1. 客户端可以随时列出可用工具
+2. 服务器可以使用 `notifications/tools/list_changed` 通知客户端工具变更
+3. 工具可以在运行时添加或移除
+4. 工具定义可以更新（但需谨慎）
 
-## Error handling
+## 错误处理
 
-Tool errors should be reported within the result object, not as MCP protocol-level errors. This allows the LLM to see and potentially handle the error. When a tool encounters an error:
+工具错误应在结果对象中报告，而不是作为 MCP 协议级别的错误。这允许 LLM 查看并可能处理错误。工具遇到错误时：
 
-1. Set `isError` to `true` in the result
-2. Include error details in the `content` array
+1. 在结果中将 `isError` 设置为 `true`
+2. 在 `content` 数组中包含错误详情
 
-Here's an example of proper error handling for tools:
+以下是工具正确错误处理的示例：
 
 <Tabs>
   <Tab title="TypeScript">
     ```typescript
     try {
-      // Tool operation
+      // 工具操作
       const result = performOperation();
       return {
         content: [
           {
             type: "text",
-            text: `Operation successful: ${result}`
+            text: `操作成功：${result}`
           }
         ]
       };
@@ -273,7 +273,7 @@ Here's an example of proper error handling for tools:
         content: [
           {
             type: "text",
-            text: `Error: ${error.message}`
+            text: `错误：${error.message}`
           }
         ]
       };
@@ -283,13 +283,13 @@ Here's an example of proper error handling for tools:
   <Tab title="Python">
     ```python
     try:
-        # Tool operation
+        # 工具操作
         result = perform_operation()
         return types.CallToolResult(
             content=[
                 types.TextContent(
                     type="text",
-                    text=f"Operation successful: {result}"
+                    text=f"操作成功：{result}"
                 )
             ]
         )
@@ -299,7 +299,7 @@ Here's an example of proper error handling for tools:
             content=[
                 types.TextContent(
                     type="text",
-                    text=f"Error: {str(error)}"
+                    text=f"错误：{str(error)}"
                 )
             ]
         )
@@ -307,42 +307,42 @@ Here's an example of proper error handling for tools:
   </Tab>
 </Tabs>
 
-This approach allows the LLM to see that an error occurred and potentially take corrective action or request human intervention.
+这种方式允许 LLM 看到错误发生，并可能采取纠正措施或请求人工干预。
 
-## Tool annotations
+## 工具注解
 
-Tool annotations provide additional metadata about a tool's behavior, helping clients understand how to present and manage tools. These annotations are hints that describe the nature and impact of a tool, but should not be relied upon for security decisions.
+工具注解为工具的行为提供了额外的元数据，帮助客户端了解如何呈现和管理工具。这些注解是描述工具性质和影响的提示，但不应依赖其进行安全决策。
 
-### Purpose of tool annotations
+### 工具注解的目的
 
-Tool annotations serve several key purposes:
+工具注解有以下几个关键用途：
 
-1. Provide UX-specific information without affecting model context
-2. Help clients categorize and present tools appropriately
-3. Convey information about a tool's potential side effects
-4. Assist in developing intuitive interfaces for tool approval
+1. 提供不影响模型上下文的 UX 特定信息
+2. 帮助客户端适当地分类和呈现工具
+3. 传递有关工具潜在副作用的信息
+4. 协助开发直观的工具批准界面
 
-### Available tool annotations
+### 可用工具注解
 
-The MCP specification defines the following annotations for tools:
+MCP 规范为工具定义了以下注解：
 
-| Annotation | Type | Default | Description |
+| 注解 | 类型 | 默认值 | 描述 |
 |------------|------|---------|-------------|
-| `title` | string | - | A human-readable title for the tool, useful for UI display |
-| `readOnlyHint` | boolean | false | If true, indicates the tool does not modify its environment |
-| `destructiveHint` | boolean | true | If true, the tool may perform destructive updates (only meaningful when `readOnlyHint` is false) |
-| `idempotentHint` | boolean | false | If true, calling the tool repeatedly with the same arguments has no additional effect (only meaningful when `readOnlyHint` is false) |
-| `openWorldHint` | boolean | true | If true, the tool may interact with an "open world" of external entities |
+| `title` | string | - | 工具的可读标题，适用于 UI 显示 |
+| `readOnlyHint` | boolean | false | 如果为 true，表示工具不修改其环境 |
+| `destructiveHint` | boolean | true | 如果为 true，工具可能执行破坏性更新（仅在 `readOnlyHint` 为 false 时有意义） |
+| `idempotentHint` | boolean | false | 如果为 true，重复调用相同参数无额外效果（仅在 `readOnlyHint` 为 false 时有意义） |
+| `openWorldHint` | boolean | true | 如果为 true，工具可能与外部实体交互 |
 
-### Example usage
+### 示例用法
 
-Here's how to define tools with annotations for different scenarios:
+以下是为不同场景定义带注解的工具的示例：
 
 ```typescript
-// A read-only search tool
+// 只读搜索工具
 {
   name: "web_search",
-  description: "Search the web for information",
+  description: "搜索网络信息",
   inputSchema: {
     type: "object",
     properties: {
@@ -351,16 +351,16 @@ Here's how to define tools with annotations for different scenarios:
     required: ["query"]
   },
   annotations: {
-    title: "Web Search",
+    title: "网络搜索",
     readOnlyHint: true,
     openWorldHint: true
   }
 }
 
-// A destructive file deletion tool
+// 破坏性文件删除工具
 {
   name: "delete_file",
-  description: "Delete a file from the filesystem",
+  description: "从文件系统中删除文件",
   inputSchema: {
     type: "object",
     properties: {
@@ -369,7 +369,7 @@ Here's how to define tools with annotations for different scenarios:
     required: ["path"]
   },
   annotations: {
-    title: "Delete File",
+    title: "删除文件",
     readOnlyHint: false,
     destructiveHint: true,
     idempotentHint: true,
@@ -377,10 +377,10 @@ Here's how to define tools with annotations for different scenarios:
   }
 }
 
-// A non-destructive database record creation tool
+// 非破坏性数据库记录创建工具
 {
   name: "create_record",
-  description: "Create a new record in the database",
+  description: "在数据库中创建新记录",
   inputSchema: {
     type: "object",
     properties: {
@@ -390,7 +390,7 @@ Here's how to define tools with annotations for different scenarios:
     required: ["table", "data"]
   },
   annotations: {
-    title: "Create Database Record",
+    title: "创建数据库记录",
     readOnlyHint: false,
     destructiveHint: false,
     idempotentHint: false,
@@ -399,7 +399,7 @@ Here's how to define tools with annotations for different scenarios:
 }
 ```
 
-### Integrating annotations in server implementation
+### 在服务器实现中集成注解
 
 <Tabs>
   <Tab title="TypeScript">
@@ -408,7 +408,7 @@ Here's how to define tools with annotations for different scenarios:
       return {
         tools: [{
           name: "calculate_sum",
-          description: "Add two numbers together",
+          description: "将两个数字相加",
           inputSchema: {
             type: "object",
             properties: {
@@ -418,7 +418,7 @@ Here's how to define tools with annotations for different scenarios:
             required: ["a", "b"]
           },
           annotations: {
-            title: "Calculate Sum",
+            title: "计算总和",
             readOnlyHint: true,
             openWorldHint: false
           }
@@ -435,17 +435,17 @@ Here's how to define tools with annotations for different scenarios:
     
     @mcp.tool(
         annotations={
-            "title": "Calculate Sum",
+            "title": "计算总和",
             "readOnlyHint": True,
             "openWorldHint": False
         }
     )
     async def calculate_sum(a: float, b: float) -> str:
-        """Add two numbers together.
+        """将两个数字相加。
         
-        Args:
-            a: First number to add
-            b: Second number to add
+        参数：
+            a: 要相加的第一个数字
+            b: 要相加的第二个数字
         """
         result = a + b
         return str(result)
@@ -453,24 +453,20 @@ Here's how to define tools with annotations for different scenarios:
   </Tab>
 </Tabs>
 
-### Best practices for tool annotations
+### 工具注解的最佳实践
 
-1. **Be accurate about side effects**: Clearly indicate whether a tool modifies its environment and whether those modifications are destructive.
+1. **准确描述副作用**：清楚地指明工具是否修改其环境，以及这些修改是否具有破坏性。
+2. **使用描述性标题**：提供清晰描述工具用途的人性化标题。
+3. **正确标记幂等性**：仅当重复调用相同参数确实无额外效果时才标记工具为幂等。
+4. **设置适当的开放/封闭世界提示**：指明工具是与封闭系统（如数据库）还是开放系统（如网络）交互。
+5. **记住注解是提示**：ToolAnnotations 中的所有属性都是提示，不能保证提供工具行为的忠实描述。客户端不应仅基于注解做出安全关键决策。
 
-2. **Use descriptive titles**: Provide human-friendly titles that clearly describe the tool's purpose.
+## 测试工具
 
-3. **Indicate idempotency properly**: Mark tools as idempotent only if repeated calls with the same arguments truly have no additional effect.
+MCP 工具的全面测试策略应涵盖：
 
-4. **Set appropriate open/closed world hints**: Indicate whether a tool interacts with a closed system (like a database) or an open system (like the web).
-
-5. **Remember annotations are hints**: All properties in ToolAnnotations are hints and not guaranteed to provide a faithful description of tool behavior. Clients should never make security-critical decisions based solely on annotations.
-
-## Testing tools
-
-A comprehensive testing strategy for MCP tools should cover:
-
-- **Functional testing**: Verify tools execute correctly with valid inputs and handle invalid inputs appropriately
-- **Integration testing**: Test tool interaction with external systems using both real and mocked dependencies
-- **Security testing**: Validate authentication, authorization, input sanitization, and rate limiting
-- **Performance testing**: Check behavior under load, timeout handling, and resource cleanup
-- **Error handling**: Ensure tools properly report errors through the MCP protocol and clean up resources
+- **功能测试**：验证工具在有效输入下正确执行，并适当地处理无效输入
+- **集成测试**：使用真实和模拟依赖测试工具与外部系统的交互
+- **安全测试**：验证认证、授权、输入清理和速率限制
+- **性能测试**：检查负载下的行为、超时处理和资源清理
+- **错误处理**：确保工具通过 MCP 协议正确报告错误并清理资源
